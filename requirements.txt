@@ -1,1 +1,6 @@
-streamlit pillow imageio moviepy groq requests
+streamlit
+pillow
+imageio
+moviepy
+groq
+requests

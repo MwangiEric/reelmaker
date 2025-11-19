@@ -17,7 +17,7 @@ client = Groq(api_key=st.secrets["GROQ_KEY"])  # Add your free key in Secrets
 WIDTH, HEIGHT = 1080, 1920  # TikTok/Reels format
 FPS, DURATION = 30, 10
 N_FRAMES = FPS * DURATION
-LOGO_URL = "https://ik.imagekit.io/ericmwangi/smlogo.png?updatedAt=1763071173037"  # Use valid S&M logo URL
+LOGO_URL = "https://ik.imagekit.io/ericmwangi/smlogo.png?updatedAt=1763071173037"  # Valid S&M logo URL
 
 # ====================== FREE TRENDING MUSIC (hotlink) ======================
 MUSIC_LINKS = [
@@ -70,9 +70,9 @@ def draw_frame(t, imgs, boxes, price, location, features, caption):
         draw.line([(0,y),(WIDTH,y)], fill=(int(10+20*alpha), int(5+15*alpha), int(20+30*alpha)))
 
     try:
-        logo_resp = requests.get(LOGO_URL, stream=True, timeout=5)
+        logo_resp = requests.get(LOGO_URL, timeout=5)
         logo_resp.raise_for_status()
-        logo = Image.open(logo_resp.raw).convert("RGBA")
+        logo = Image.open(io.BytesIO(logo_resp.content)).convert("RGBA")
     except Exception as e:
         st.warning(f"Logo load failed: {e}. Using blank.")
         logo = Image.new("RGBA", (1,1), (0,0,0,0))

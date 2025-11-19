@@ -17,7 +17,7 @@ client = Groq(api_key=st.secrets["GROQ_KEY"])  # Add your free key in Secrets
 WIDTH, HEIGHT = 1080, 1920  # TikTok/Reels format
 FPS, DURATION = 30, 10
 N_FRAMES = FPS * DURATION
-LOGO_URL = "https://your-logo-url.com/logo.png"  # Replace with your brand logo
+LOGO_URL = "https://ik.imagekit.io/ericmwangi/smlogo.png?updatedAt=1763071173037"  # Use valid S&M logo URL
 
 # ====================== FREE TRENDING MUSIC (hotlink) ======================
 MUSIC_LINKS = [
@@ -69,13 +69,21 @@ def draw_frame(t, imgs, boxes, price, location, features, caption):
         alpha = y / HEIGHT
         draw.line([(0,y),(WIDTH,y)], fill=(int(10+20*alpha), int(5+15*alpha), int(20+30*alpha)))
 
-    logo = Image.open(requests.get(LOGO_URL, stream=True).raw).convert("RGBA") if LOGO_URL else Image.new("RGBA", (1,1))
+    try:
+        logo_resp = requests.get(LOGO_URL, stream=True, timeout=5)
+        logo_resp.raise_for_status()
+        logo = Image.open(logo_resp.raw).convert("RGBA")
+    except Exception as e:
+        st.warning(f"Logo load failed: {e}. Using blank.")
+        logo = Image.new("RGBA", (1,1), (0,0,0,0))
+
     img_idx = int(t / (DURATION / len(imgs))) % len(imgs)  # Cycle through photos
     current_img = imgs[img_idx]
 
     for b in boxes:
         if b["role"] == "logo":
-            canvas.paste(logo.resize((b["w"], b["h"])), (b["x"], b["y"]), logo)
+            resized_logo = logo.resize((b["w"], b["h"]))
+            canvas.paste(resized_logo, (b["x"], b["y"]), resized_logo)
         if b["role"] == "house":
             zoom = 1.0 + 0.05 * math.sin(t * 2)  # Ken Burns zoom
             w2, h2 = int(b["w"]*zoom), int(b["h"]*zoom)
